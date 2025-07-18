@@ -5,12 +5,10 @@ import org.openqa.selenium.WebDriver;
 import utils.CommonUtils;
 
 public class HomePage {
+    private final By createAccountButton = By.xpath("//div[@class = 'panel header' ]//a[text()='Create an Account']");
     WebDriver driver;
     CommonUtils commonUtils;
     AdPage adPage;
-    private By createAccountButton = By.xpath("//div[@class = 'panel header' ]//a[text()='Create an Account']");
-    private By adDismissButton = By.xpath("//div[@id='dismiss-button']");
-    private By adCard = By.xpath("//div[@id='dismiss-button']");
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
@@ -29,7 +27,7 @@ public class HomePage {
         }
     }
 
-    public void clickOnCreateAccountButton(){
+    public void clickOnCreateAccountButton() {
         adPage.checkAndCloseAd();
         commonUtils.clickOnGivenElement(createAccountButton);
     }

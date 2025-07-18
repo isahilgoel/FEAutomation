@@ -13,11 +13,11 @@ import java.time.Duration;
 public class AdPage {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdPage.class);
     private final String AD_PAGE_IFRAME_NAME = "aswift_5";
-    private final String AD_BOX_IFRAME_NAME = "ad_iframe";
+    private final By adCard = By.xpath("//div[@id='ad_position_box']");
+    private final By adContainer = By.xpath("//div[@id='ad-container']");
+    private final By adDismissButton = By.xpath("//div[@id='dismiss-button']");
     WebDriver driver;
     CommonUtils commonUtils;
-    private final By adCard = By.xpath("//div[@id='ad_position_box']");
-    private final By adDismissButton = By.xpath("//div[@id='dismiss-button']");
 
     public AdPage(WebDriver driver) {
         this.driver = driver;
@@ -26,9 +26,14 @@ public class AdPage {
 
     public void checkAndCloseAd() {
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            boolean adClosed = false;
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            if (commonUtils.isElementPresentAndVisible(adContainer, Duration.ofSeconds(2))) {
+                commonUtils.refreshPage();
+                adClosed = true;
+            }
             wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(AD_PAGE_IFRAME_NAME));
-            if (commonUtils.isElementPresentAndVisible(adCard, Duration.ofSeconds(5))) {
+            if (commonUtils.isElementPresentAndVisible(adCard, Duration.ofSeconds(5)) && !adClosed) {
                 LOGGER.info("Ad is visible, closing the ad.");
                 commonUtils.clickOnGivenElement(adDismissButton);
             } else {

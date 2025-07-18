@@ -1,58 +1,43 @@
 package stepDefinitions;
 
-import Constants.UrlConstants;
+import base.TestBase;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import pages.AdPage;
-import pages.CreateAccountPage;
-import pages.HomePage;
-import utils.CommonUtils;
 import utils.TestDataGenerator;
 
-public class SignUpSteps {
+public class SignUpSteps extends TestBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SignUpSteps.class);
     TestDataGenerator testDataGenerator = new TestDataGenerator();
-
-    WebDriver driver;
-    HomePage homePage;
-    CreateAccountPage createAccountPage;
-    CommonUtils commonUtils;
-    AdPage adPage;
+    String firstName;
+    String lastName;
+    String email;
+    String password;
 
     @Given("User opens the home page")
     public void openHomepage() {
-        LOGGER.info("Navigating to: {}", UrlConstants.HOMEPAGE_URL);
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get(UrlConstants.HOMEPAGE_URL);
-        LOGGER.info("Page opened, waiting till Create account button is visible");
-        homePage = new HomePage(driver);
-        adPage = new AdPage(driver);
+        setUpDriverAndNavigateToHomepage();
         Assert.assertTrue(homePage.isCreateAccountButtonVisible(), "Create Account button is not displayed");
         LOGGER.info("Create Account button found");
     }
 
-    @Given("User clicks on create account button")
+    @Then("User clicks on create account button")
     public void clickOnCreateAccountButton() {
         homePage.clickOnCreateAccountButton();
-        createAccountPage = new CreateAccountPage(driver);
         createAccountPage.waitTillCreateAccountPageLoaded();
         LOGGER.info("Create Account page is loaded");
     }
 
-    @Then("User enters personal details")
+    @When("User enters personal details")
     public void enterUserDetails() {
-        String firstName = testDataGenerator.getRandomStringOfGivenLength(5);
-        String lastName = testDataGenerator.getRandomStringOfGivenLength(5);
-        String email = testDataGenerator.getRandomValidEmail();
-        String password = testDataGenerator.getRandomPassword();
-
+        email = testDataGenerator.getRandomValidEmail();
+        password = testDataGenerator.getRandomPassword();
+        firstName = testDataGenerator.getRandomStringOfGivenLength(5);
+        lastName = testDataGenerator.getRandomStringOfGivenLength(5);
         createAccountPage.enterFirstName(firstName);
         createAccountPage.enterLastName(lastName);
         createAccountPage.enterEmail(email);
@@ -61,10 +46,38 @@ public class SignUpSteps {
         createAccountPage.clickOnCreateAccountButton();
     }
 
-    @Then("Close browser")
-    public void closeWebDriver() {
-//        driver.close();
+    @Then("User verifies account information")
+    public void userVerifyAccountDetails() {
+        Assert.assertTrue(createAccountPage.checkAccountCreationMessage());
+        Assert.assertTrue(createAccountPage.getContactInformationDisplayedOnPage().contains(firstName), "First name is not displayed");
+        Assert.assertTrue(createAccountPage.getContactInformationDisplayedOnPage().contains(lastName), "Last name is not displayed");
+        Assert.assertTrue(createAccountPage.getContactInformationDisplayedOnPage().contains(email), "Email is not displayed");
     }
 
+    @Then("User clicks on the login button")
+    public void userClicksOnLoginButton() {
+        loginPage.userClicksOnLoginButton();
+    }
 
+    @Then("User enters login credentials")
+    public void userEntersEmailAndPassword() {
+        loginPage.enterEmail(email);
+        loginPage.enterPassword(password);
+    }
+
+    @Then("User clicks on sign in button")
+    public void userClicksOnSignInButton() {
+        loginPage.clickOnSignInButton();
+    }
+
+    @Then("User verifies successful login")
+    public void userVerifiesLoginIsSuccessful() {
+        Assert.assertTrue(loginPage.isSignInSuccessful(), "Login was not successful");
+        LOGGER.info("Login successful for user: {}", email);
+    }
+
+    @Then("Close browser")
+    public void closeWebDriver() {
+        driver.close();
+    }
 }
