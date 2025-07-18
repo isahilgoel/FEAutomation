@@ -1,6 +1,7 @@
 package stepDefinitions;
 
 import base.TestBase;
+import constants.FieldConstants;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -65,9 +66,24 @@ public class SignUpSteps extends TestBase {
         loginPage.enterPassword(password);
     }
 
+    @Then("User enters invalid login credentials")
+    public void userEntersInvalidCredsOnLoginPage() {
+        email = testDataGenerator.getRandomValidEmail();
+        password = testDataGenerator.getRandomPassword();
+        loginPage.enterEmail(email);
+        loginPage.enterPassword(password);
+        LOGGER.info("Entered invalid credentials: Email - {}, Password - {}", email, password);
+    }
+
+
     @Then("User clicks on sign in button")
     public void userClicksOnSignInButton() {
         loginPage.clickOnSignInButton();
+    }
+
+    @Then("User verifies error message for invalid credentials")
+    public void verifyErrorForLoginWithInvalidDetails() {
+        Assert.assertEquals(loginPage.getSignInErrorMessage(), FieldConstants.SIGN_IN_ERROR_MESSAGE, "Error message does not match expected value");
     }
 
     @Then("User verifies successful login")
